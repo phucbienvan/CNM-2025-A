@@ -16,4 +16,11 @@ class ProductController extends Controller
 
         return new ProductResource($product);
     }
+
+    public function index(Request $request)
+    {
+        $products = Product::orderBy('id', 'desc');
+
+        return ProductResource::apiPaginate($products, $request);
+    }
 }
