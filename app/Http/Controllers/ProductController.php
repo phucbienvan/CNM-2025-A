@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Product\CreateRequest;
+use App\Http\Requests\Product\UpdateRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -23,4 +24,13 @@ class ProductController extends Controller
 
         return ProductResource::apiPaginate($products, $request);
     }
+
+    public function update(UpdateRequest $request, Product $product)
+    {
+        $validated = $request->validated();
+        $product->update($validated);
+
+        return new ProductResource($product);
+    }
+
 }
