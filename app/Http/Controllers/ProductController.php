@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Product\CreateRequest;
+use App\Http\Requests\Product\UpdateRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use App\Http\Requests\Product\UpdateRequest;
 
 class ProductController extends Controller
 {
@@ -36,6 +36,15 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         return new ProductResource($product);
+    }
+
+    public function destroy(Product $product)
+    {
+        $product->delete();
+
+        return response()->json([
+            'message' => 'Product deleted successfully',
+        ], 200);
     }
 
 }
