@@ -24,24 +24,18 @@ class ProductController extends Controller
 
         return ProductResource::apiPaginate($products, $request);
     }
-    public function update(UpdateRequest $request, $id)
+
+    public function update(UpdateRequest $request, Product $product)
     {
-        //dd('123');
         $userRequest = $request->validated();
-        $product = Product::findOrFail($id);
-       $dataToUpdate = [];
-        if(isset($userRequest['name'])) {
-            $dataToUpdate['name'] = $userRequest['name'];
-        }
-        if(isset($userRequest['description'])) {
-            $dataToUpdate['description'] = $userRequest['description'];
-        }
-        if(isset($userRequest['price'])) {
-            $dataToUpdate['price'] = $userRequest['price'];
-        }
-        if(!empty($dataToUpdate)) {
-            $product->update($dataToUpdate); //nếu có dữ liệu để cập nhật thì mới gọi hàm update
-        } 
+        $product->update($userRequest);
+
         return new ProductResource($product);
     }
+
+    public function show(Product $product)
+    {
+        return new ProductResource($product);
+    }
+
 }
