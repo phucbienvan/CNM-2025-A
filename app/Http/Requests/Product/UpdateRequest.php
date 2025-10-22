@@ -15,9 +15,9 @@ class UpdateRequest extends BaseRequest
     public function rules()
     {
         return [
-            'name' => 'sometimes|required|string|max:255',
+            'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'price' => 'sometimes|required|numeric|min:0',
+            'price' => 'required|numeric|min:0',
         ];
     }
     public function messages()
