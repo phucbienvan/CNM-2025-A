@@ -32,4 +32,18 @@ class ProductController extends Controller
 
         return new ProductResource($product);
     }
+
+    public function show(Product $product)
+    {
+        return new ProductResource($product);
+    }
+
+    public function destroy(Product $product)
+    {
+        $product->delete();
+
+        return response()->json([
+            'message' => 'Product deleted successfully',
+        ], 200);
+    }
 }
