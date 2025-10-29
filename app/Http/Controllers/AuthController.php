@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Laravel\Sanctum\PersonalAccessToken;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
@@ -48,4 +48,20 @@ class AuthController extends Controller
             'user' => new UserResource(auth()->user()),
         ], 200);
     }
+
+    public function logout()
+        {
+        $accessToken = request()->bearerToken();
+
+        if ($accessToken) {
+            $token = PersonalAccessToken::findToken($accessToken);
+            if ($token) {
+                $token->delete();
+            }
+        }
+
+        return response()->json([
+            'message' => 'Logout successful',
+        ], 200);
+        }
 }
