@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
@@ -20,6 +19,7 @@ Route::post('login', [AuthController::class, 'login']);
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('users', [AuthController::class, 'getProfile']);
+    Route::post('logout', [AuthController::class, 'logout']);
 });
 
 Route::group(['prefix' => 'products'], function () {
