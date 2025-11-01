@@ -21,6 +21,7 @@ class AuthController extends Controller
         ], 201);
     }
 
+    //login function
     public function login(LoginRequest $request)
     {
         $userRequest = $request->validated();
