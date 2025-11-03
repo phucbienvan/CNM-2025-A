@@ -24,19 +24,11 @@ class ProductController extends Controller
         return ProductResource::apiPaginate($products, $request);
     }
 
-    public function update (Request $request , $id) 
+    public function update (Request $request , Product $product) 
     {
-        $product = Product::find($id);
-        if (!$product) {
-            return response() -> json([
-                'message' => 'Product not found'
-            ],404);
-        }else {
-            $product->update($request->all());
-            return response() -> json([
-                'message' => 'Product updated successfully',
-                'data' => $product
-            ],201); 
-        }
+        $userRequest = $request->validated();
+        $product->update($userRequest);
+
+        return new ProductResource($product);
     }
 }
