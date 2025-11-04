@@ -34,7 +34,7 @@ class AuthController extends Controller
         }
 
         $accessToken = $user->createToken('auth_token')->plainTextToken;
-        
+
         return response()->json([
             'user' => new UserResource($user),
             'message' => 'Login successful',
@@ -46,6 +46,14 @@ class AuthController extends Controller
     {
         return response()->json([
             'user' => new UserResource(auth()->user()),
+        ], 200);
+    }
+
+    public function logout()
+    {
+        auth()->user()->currentAccessToken()->delete();
+        return response()->json([
+            'message' => 'Logout successfully'
         ], 200);
     }
 }
