@@ -48,4 +48,13 @@ class AuthController extends Controller
             'user' => new UserResource(auth()->user()),
         ], 200);
     }
+
+    public function logout()
+    {
+        auth()->user()->tokens()->delete();
+
+        return response()->json([
+            'message' => 'Logout successful',
+        ], 200);
+    }
 }
