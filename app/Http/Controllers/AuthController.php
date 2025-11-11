@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -34,7 +35,7 @@ class AuthController extends Controller
         }
 
         $accessToken = $user->createToken('auth_token')->plainTextToken;
-        
+
         return response()->json([
             'user' => new UserResource($user),
             'message' => 'Login successful',
@@ -46,6 +47,15 @@ class AuthController extends Controller
     {
         return response()->json([
             'user' => new UserResource(auth()->user()),
+        ], 200);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logout successful',
         ], 200);
     }
 }
