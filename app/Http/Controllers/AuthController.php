@@ -42,7 +42,7 @@ class AuthController extends Controller
             'access_token' => $accessToken,
         ], 200);
     }
-
+    
     public function getProfile()
     {
         return response()->json([

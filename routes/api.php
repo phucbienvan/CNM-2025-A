@@ -15,15 +15,17 @@ use App\Http\Controllers\ProductController;
 |
 */
 
+Route::post('register',[AuthController::class,'register']);
+Route::post('login',[AuthController::class,'login']);
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
-    Route::post('register',[AuthController::class,'register']);
-    Route::post('login',[AuthController::class,'login']);
-
-    Route::group(['middleware'=>'auth:sanctum'], function(){
-        Route::get('users',[AuthController::class,'getProfile']);
-    });
 });
+Route::group(['middleware'=>'auth:sanctum'], function(){
+    Route::get('users',[AuthController::class,'getProfile']);
+});
+
+
 
 Route::group(['prefix' => 'products'], function () {
     Route::post('', [ProductController::class, 'store']);
