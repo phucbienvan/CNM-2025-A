@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
@@ -48,4 +49,14 @@ class AuthController extends Controller
             'user' => new UserResource(auth()->user()),
         ], 200);
     }
+    public function logout(Request $request)
+    {
+
+    $request->user()->currentAccessToken()->delete();
+
+    return response()->json([
+        'message' => 'Logout successful',
+    ], 200);
+    }
+
 }
