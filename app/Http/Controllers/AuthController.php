@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -25,16 +26,25 @@ class AuthController extends Controller
     {
         $userRequest = $request->validated();
         $user = User::where('email', $userRequest['email'])->first();
+
+        // Kiểm tra user tồn tại TRƯỚC khi check password
+        if (!$user) {
+            return response()->json([
+                'message' => 'Password or email is incorrect',
+            ], 401);
+        }
+
+        // Bây giờ mới check password
         $checkUser = Hash::check($userRequest['password'], $user->password);
 
-        if (!$user || !$checkUser) {
+        if (!$checkUser) {
             return response()->json([
                 'message' => 'Password or email is incorrect',
             ], 401);
         }
 
         $accessToken = $user->createToken('auth_token')->plainTextToken;
-        
+
         return response()->json([
             'user' => new UserResource($user),
             'message' => 'Login successful',
@@ -48,4 +58,14 @@ class AuthController extends Controller
             'user' => new UserResource(auth()->user()),
         ], 200);
     }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logout successful',
+        ], 200);
+    }
+
 }
