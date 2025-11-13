@@ -64,6 +64,28 @@ class AuthController extends Controller
         ], 200);
     }
 
+    public function resendCode(Request $request)
+    {
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found',
+            ], 404);
+        }
+
+        $code = rand(100000, 999999);
+        $expiredCodeAt = now()->addMinutes(10);
+        $user->verify_code = $code;
+        $user->expired_code_at = $expiredCodeAt;
+        $user->save();
+
+        Mail::to($user->email)->send(new SendMail($code));
+
+        return response()->json([
+            'message' => 'Code resent successfully',
+        ], 200);
+    }
+
     public function login(LoginRequest $request)
     {
         $userRequest = $request->validated();
