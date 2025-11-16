@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Mail;
+
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\VerifyCodeRequest;
+use App\Http\Requests\Auth\ResendCodeRequest;
 use App\Http\Resources\UserResource;
+use App\Mail\SendMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
@@ -13,36 +18,99 @@ class AuthController extends Controller
 {
     public function register(RegisterRequest $request)
     {
-        $data = $request->validated();
-        $data['password'] = Hash::make($data['password']);
-        $user = User::create($data);
+        $userRequest = $request->validated();
+        $userRequest['password'] = Hash::make($userRequest['password']);
+        $code = rand(100000,999999);
+        $expiredCodeAt = now()->addMinutes(10);
+        $userRequest['verify_code'] = $code;
+        $userRequest['expired_code_at'] = $expiredCodeAt;
+        $userRequest['status'] = 0;
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $user = User::create($userRequest);
+
+        Mail::to($user->email)->send(new SendMail($code));
 
         return response()->json([
-            'user' => new UserResource($user),
             'message' => 'User created successfully',
-            'access_token' => $token,
         ], 201);
+    }
+
+    public function verifyCode(VerifyCodeRequest $request)
+    {
+        $userRequest = $request->validated();
+        $user = User::where('email', $userRequest['email'])->first();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found',
+            ], 404);
+        }
+        if ($user->verify_code !== $userRequest['code']) {
+            return response()->json([
+                'message' => 'Code is incorrect',
+            ], 400);
+        }
+        if ($user->expired_code_at < now()) {
+            return response()->json([
+                'message' => 'Code has expired',
+            ], 400);
+        }
+        $user->status = 1; // 1: verified, 0: not verified
+        $user->save();
+        return response()->json([
+            'message' => 'Code verified successfully',
+        ], 200);
+    }
+
+    public function resendCode(ResendCodeRequest $request)
+    {
+        $userRequest = $request->validated();
+        $user = User::where('email', $userRequest['email'])->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found',
+            ], 404);
+        }
+
+        $code = rand(100000, 999999);
+        $expiredCodeAt = now()->addMinutes(10);
+
+        $user->verify_code = $code;
+        $user->expired_code_at = $expiredCodeAt;
+        $user->save();
+
+        Mail::to($user->email)->send(new SendMail($code));
+
+        return response()->json([
+            'message' => 'Verification code resent successfully',
+            'expired_code_at' => $expiredCodeAt,
+        ], 200);
     }
 
     public function login(LoginRequest $request)
     {
-        $data = $request->validated();
-        $user = User::where('email', $data['email'])->first();
+        $userRequest = $request->validated();
+        $user = User::where('email', $userRequest['email'])->first();
 
-        if (!$user || !Hash::check($data['password'], $user->password)) {
+        if (!$user || $user->status !== 1) {
+            return response()->json([
+                'message' => 'User not verified',
+            ], 401);
+        }
+
+        $checkUser = Hash::check($userRequest['password'], $user->password);
+        if (!$user || !$checkUser) {
             return response()->json([
                 'message' => 'Email or password is incorrect',
             ], 401);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $accessToken = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'user' => new UserResource($user),
             'message' => 'Login successful',
-            'access_token' => $token,
+            'access_token' => $accessToken,
         ], 200);
     }
 
