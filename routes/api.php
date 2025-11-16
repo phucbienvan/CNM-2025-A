@@ -18,6 +18,8 @@ use App\Http\Controllers\AuthController;
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('verify-code', [AuthController::class, 'verifyCode']);
+Route::post('resend-code', [AuthController::class, 'resendCode']);
+
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('users', [AuthController::class, 'getProfile']);
