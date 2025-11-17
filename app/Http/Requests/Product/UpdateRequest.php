@@ -6,6 +6,7 @@ use App\Http\Requests\BaseRequest;
 
 class UpdateRequest extends BaseRequest
 {
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -16,9 +17,10 @@ class UpdateRequest extends BaseRequest
         return [
             'name' => 'sometimes|string|max:255',
             'description' => 'sometimes|string',
-            'price' => 'sometimes|numeric',
+            'price' => 'sometimes|numeric|min:0',
         ];
     }
+
 
     public function messages()
     {
@@ -27,6 +29,7 @@ class UpdateRequest extends BaseRequest
             'name.string' => 'Name must be string',
             'description.string' => 'Description must be string',
             'name.max' => 'Name must be less than 255 characters',
+
         ];
     }
 }

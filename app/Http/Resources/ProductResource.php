@@ -18,6 +18,7 @@ class ProductResource extends BaseResource
             'description' => $this->description,
             'price' => $this->price,
             'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

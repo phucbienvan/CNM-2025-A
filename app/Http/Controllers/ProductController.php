@@ -46,4 +46,5 @@ class ProductController extends Controller
             'message' => 'Product deleted successfully',
         ], 200);
     }
+
 }
