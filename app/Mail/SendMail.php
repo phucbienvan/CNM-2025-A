@@ -11,14 +11,15 @@ class SendMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    protected $code;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($code)
     {
-        //
+        $this->code = $code;
     }
 
     /**
