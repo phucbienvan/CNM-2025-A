@@ -1,0 +1,1 @@
+Hello, this is your verify code: {{$code}}
