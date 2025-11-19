@@ -15,7 +15,7 @@ class ResendCodeRequest extends BaseRequest
     public function rules()
     {
         return [
-            //
+            'email' => 'required|string|max:255|email',
         ];
     }
 }
