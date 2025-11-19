@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\ResendCodeRequest;
 use App\Http\Requests\Auth\VerifyCodeRequest;
 use App\Http\Resources\UserResource;
 use App\Mail\SendMail;
@@ -57,10 +58,37 @@ class AuthController extends Controller
         }
 
         $user->status = 1; // 1: verified, 0: not verified
+        $user->expired_code_at = null;
+        $user->verify_code = null;
         $user->save();
 
         return response()->json([
             'message' => 'Code verified successfully',
+        ], 200);
+    }
+
+    public function resendCode(ResendCodeRequest $request)
+    {
+        $userInput = $request->validated();
+
+        $user = User::where('email', $userInput['email'])->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found',
+            ], 404);
+        }
+
+        $code = rand(100000, 999999);
+        $expiredCodeAt = now()->addMinutes(10);
+        $user->verify_code = $code;
+        $user->expired_code_at = $expiredCodeAt;
+        $user->save();
+
+        Mail::to($user->email)->send(new SendMail($code));
+
+        return response()->json([
+            'message' => 'Code resent successfully',
         ], 200);
     }
 
@@ -105,29 +133,6 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Logout successful',
-        ], 200);
-    }
-
-    public function resendCode(Request $request)
-    {
-        $user = User::where('email', $request->email)->first();
-
-        if(!$user){
-            return response()->json([
-                'message' => 'User not found',
-            ], 404);
-        }
-
-        $code = rand(100000, 999999);
-        $expiredCodeAt = now()->addMinutes(3);
-        $userRequest['verify_code'] = $code;
-        $userRequest['expired_code_at'] = $expiredCodeAt;
-        $user->save();
-
-        Mail::to($user->email)->send(new SendMail($code));
-
-        return response()->json([
-            'message' => 'Code resent successfully',
         ], 200);
     }
 }
