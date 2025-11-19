@@ -1,0 +1,1 @@
+Hello, This is your code to verify your email: {{ $code }}
