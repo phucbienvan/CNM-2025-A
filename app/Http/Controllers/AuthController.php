@@ -119,6 +119,14 @@ class AuthController extends Controller
             'access_token' => $accessToken,
         ], 200);
     }
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        
+        return response()->json([
+            'message' => 'Logout successful',
+        ], 200);
+    }
 
     public function getProfile()
     {
