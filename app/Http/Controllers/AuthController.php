@@ -15,6 +15,18 @@ use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
+    public function logout(){
+        $user=auth()->user();
+        if($user){
+            $user->currentAccessToken()->delete();
+            return response()->json([
+                'message'=>'Logout successful',
+            ],200);
+        }
+        return response()->json([
+            'message' => 'User not authenticated',
+        ], 401);
+    }
     public function register(RegisterRequest $request)
     {
         $userRequest = $request->validated();
